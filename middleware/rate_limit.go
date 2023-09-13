@@ -16,6 +16,7 @@ func RateLimitMiddleware(r rate.Limit, b int) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
 		c.Next()
 	}
 }

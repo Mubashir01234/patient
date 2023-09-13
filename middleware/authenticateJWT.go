@@ -2,9 +2,11 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"patient/auth"
 	"patient/config"
+	"patient/constant"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -19,14 +21,15 @@ const (
 func AuthenticateJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader(tokenHeaderKey)
+		fmt.Println(header)
 		if header == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing authorization header"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authorization header"})
 			c.Abort()
 			return
 		}
 
 		if !strings.HasPrefix(header, authorizationTypeBearer) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid authorization header"})
 			c.Abort()
 			return
 		}
@@ -34,17 +37,17 @@ func AuthenticateJWT() gin.HandlerFunc {
 		tokenStr := header[len(authorizationTypeBearer):]
 		claims := &auth.Claims{}
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-			return config.Cfg.JwtSecret, nil
+			return []byte(config.Cfg.JwtSecret), nil
 		})
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token: " + err.Error()})
 			c.Abort()
 			return
 		}
 
 		if !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 			c.Abort()
 			return
 		}
@@ -63,9 +66,8 @@ func setClaim(c *gin.Context, claims *auth.Claims) error {
 		return errors.New("unable to set claims")
 	}
 
-	c.Set("user_id", claims.UserID)
-	c.Set("email", claims.Email)
-	c.Set("role", claims.Role)
-
+	c.Set(constant.USER_ID_CONTEXT, claims.UserID)
+	c.Set(constant.EMAIL_CONTEXT, claims.Email)
+	c.Set(constant.ROLE_CONTEXT, claims.Role)
 	return nil
 }

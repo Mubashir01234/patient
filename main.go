@@ -27,7 +27,6 @@ func main() {
 	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
-
 	r.Use(gin.Logger())
 	if gin.Mode() == gin.ReleaseMode {
 		r.Use(middleware.SecurityMiddleware())
@@ -35,7 +34,6 @@ func main() {
 	}
 	r.Use(middleware.CorsMiddleware())
 	r.Use(middleware.RateLimitMiddleware(rate.Every(1*time.Minute), 60)) // 60 requests per minute
-
 	models.ConnectDatabase()
 
 	v1 := r.Group("/api/v1")
@@ -45,7 +43,6 @@ func main() {
 
 		patient := v1.Group("/patient")
 		{
-
 			// v1.GET("/books", middleware.APIKeyAuthMiddleware(), controllers.FindBooks)
 			// v1.POST("/books", middleware.APIKeyAuthMiddleware(), middleware.AuthenticateJWT(), controllers.CreateBook)
 			// v1.GET("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.FindBook)
@@ -53,6 +50,7 @@ func main() {
 			// v1.DELETE("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.DeleteBook)
 
 			patient.POST("/register", auth.PatientRegisterHandler)
+			patient.GET("", middleware.AuthenticateJWT(), controllers.GetPatientByEmail)
 		}
 	}
 	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))

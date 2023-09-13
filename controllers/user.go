@@ -1,16 +1,52 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
+	"patient/constant"
+	"patient/models"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func Healthcheck(g *gin.Context) {
 	g.JSON(http.StatusOK, "ok")
 }
 
-// func FindBooks(c *gin.Context) {
+func GetPatientByEmail(c *gin.Context) {
+	incomingEmail := c.Query("email")
+	if len(incomingEmail) <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "bad request"})
+		return
+	}
+
+	userEmail, _ := c.Get(constant.EMAIL_CONTEXT)
+	userRole, _ := c.Get(constant.ROLE_CONTEXT)
+	fmt.Println(userEmail, incomingEmail)
+	if userEmail != incomingEmail && userRole != constant.ADMIN_ROLE {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "you have no access to get user information"})
+		return
+	}
+
+	var user models.GetUser
+	userCollection := models.Collection["users"]
+	if err := userCollection.FindOne(c, bson.D{primitive.E{Key: "email", Value: incomingEmail}}).Decode(&user); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			c.JSON(http.StatusOK, gin.H{"message": "no data present for this email", "data": nil})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error on getting data: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": user})
+}
+
 // 	var books []models.Book
 
 // 	// Get query params

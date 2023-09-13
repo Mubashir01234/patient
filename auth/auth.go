@@ -33,33 +33,29 @@ type Claims struct {
 func LoginHandler(c *gin.Context) {
 	var incomingUser models.UserRequest
 	var dbUser models.User
-
-	// Get JSON body
 	if err := c.ShouldBindJSON(&incomingUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "bad request"})
 		return
 	}
+
 	collection := models.Collection["users"]
-	// Fetch the user from the database
 	if err := collection.FindOne(c, bson.D{primitive.E{Key: "email", Value: incomingUser.Email}}).Decode(&dbUser); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
 		return
 	}
 
-	// Verify password
 	if err := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(incomingUser.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
 		return
 	}
-	fmt.Println("------", dbUser)
-	// Generate JWT token
+
 	token, err := GenerateToken(dbUser)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error generating token: %v", err)})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error generating token: %v", err)})
 		return
 	}
 
@@ -68,46 +64,42 @@ func LoginHandler(c *gin.Context) {
 
 func PatientRegisterHandler(c *gin.Context) {
 	var user models.UserRequest
-
-	fmt.Println(GetRequestBody(c))
-
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Hash the password
 	hashedPassword, err := HashPassword(user.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not hash password"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not hash password"})
 		return
 	}
 
 	collection := models.Collection["users"]
 	var existingUser models.UserRequest
 	if err = collection.FindOne(c, bson.D{primitive.E{Key: "email", Value: user.Email}}).Decode(&existingUser); err == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Email already exists"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "email already exists"})
 		return
 	}
+
 	var newUser models.User
 	if err := copier.Copy(&newUser, &user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("copier error: %v", err)})
 		return
 	}
-	now := time.Now().UTC()
+
+	now := time.Now().Local()
 	newUser.Password = hashedPassword
 	newUser.Role = constant.PATIENT_ROLE
 	newUser.CreatedAt = now
 	newUser.UpdatedAt = now
-
-	// Save the user to the database
 	_, err = collection.InsertOne(c, newUser)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Could not save user: %v", err)})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("could not save user: %v", err)})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Registration successful"})
+	c.JSON(http.StatusOK, gin.H{"message": "registration successful"})
 }
 
 func HashPassword(password string) (string, error) {
@@ -116,10 +108,7 @@ func HashPassword(password string) (string, error) {
 }
 
 func GenerateToken(userData models.User) (string, error) {
-	// The expiration time after which the token will be invalid.
-	expirationTime := time.Now().Add(30 * time.Hour).Unix()
-
-	// Create the JWT claims, which includes the email and expiration time
+	expirationTime := time.Now().Local().Add(30 * time.Hour).Unix()
 	claims := &Claims{
 		UserID: userData.ID.Hex(),
 		Email:  userData.Email,
@@ -128,11 +117,7 @@ func GenerateToken(userData models.User) (string, error) {
 			ExpiresAt: expirationTime,
 		},
 	}
-
-	// Declare the token with the algorithm used for signing, and the claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// Create the JWT string
 	tokenString, err := token.SignedString([]byte(config.Cfg.JwtSecret))
 	if err != nil {
 		return "", err
@@ -142,10 +127,10 @@ func GenerateToken(userData models.User) (string, error) {
 }
 
 func GenerateRandomJWTKey() string {
-	key := make([]byte, 32) // generate a 256 bit key
+	key := make([]byte, 32)
 	_, err := rand.Read(key)
 	if err != nil {
-		panic("Failed to generate random key: " + err.Error())
+		panic("failed to generate random key: " + err.Error())
 	}
 
 	return base64.StdEncoding.EncodeToString(key)
@@ -162,8 +147,7 @@ func GetRequestBody(c *gin.Context) (string, error) {
 			return "", err
 		}
 	}
-	// Restore the io.ReadCloser to its original state
+
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-	// Convert to string and return
 	return string(bodyBytes), nil
 }

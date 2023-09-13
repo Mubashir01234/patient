@@ -15,9 +15,8 @@ var (
 )
 
 func ConnectDatabase() {
-	clientOptions := options.Client().ApplyURI(config.Cfg.MongoURL)
 	var err error
-
+	clientOptions := options.Client().ApplyURI(config.Cfg.MongoURL)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal("Connection Failed to Database")
@@ -30,8 +29,8 @@ func ConnectDatabase() {
 		log.Fatal("Unable to connect to Database")
 		log.Fatal(err)
 	}
-	log.Println("⛁ Connected to Mongo Database!")
 
+	log.Println("⛁ Connected to Mongo Database!")
 	collections := loadCollection(client)
 	DB = client
 	Collection = collections
