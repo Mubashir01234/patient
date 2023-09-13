@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"patient/config"
+	"patient/constant"
 	"patient/models"
 	"time"
 
@@ -23,7 +24,9 @@ import (
 
 // Claims struct to be encoded to JWT
 type Claims struct {
-	Username string `json:"username"`
+	UserID string `json:"user_id"`
+	Email  string `json:"email"`
+	Role   string `json:"role"`
 	jwt.StandardClaims
 }
 
@@ -40,28 +43,21 @@ func LoginHandler(c *gin.Context) {
 	// Fetch the user from the database
 	if err := collection.FindOne(c, bson.D{primitive.E{Key: "email", Value: incomingUser.Email}}).Decode(&dbUser); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		}
 		return
 	}
 
-	// if err := models.DB.Where("username = ?", incomingUser.Username).First(&dbUser).Error; err != nil {
-	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
-	// 	} else {
-	// 	}
-	// 	return
-	// }
-
 	// Verify password
 	if err := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(incomingUser.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
 		return
 	}
 	fmt.Println("------", dbUser)
 	// Generate JWT token
-	token, err := GenerateToken(dbUser.Email)
+	token, err := GenerateToken(dbUser)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error generating token: %v", err)})
 		return
@@ -70,7 +66,7 @@ func LoginHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-func RegisterHandler(c *gin.Context) {
+func PatientRegisterHandler(c *gin.Context) {
 	var user models.UserRequest
 
 	fmt.Println(GetRequestBody(c))
@@ -100,6 +96,7 @@ func RegisterHandler(c *gin.Context) {
 	}
 	now := time.Now().UTC()
 	newUser.Password = hashedPassword
+	newUser.Role = constant.PATIENT_ROLE
 	newUser.CreatedAt = now
 	newUser.UpdatedAt = now
 
@@ -118,15 +115,18 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-func GenerateToken(email string) (string, error) {
+func GenerateToken(userData models.User) (string, error) {
 	// The expiration time after which the token will be invalid.
 	expirationTime := time.Now().Add(30 * time.Hour).Unix()
 
 	// Create the JWT claims, which includes the email and expiration time
-	claims := &jwt.StandardClaims{
-		// In JWT, the expiry time is expressed as unix milliseconds
-		ExpiresAt: expirationTime,
-		Issuer:    email,
+	claims := &Claims{
+		UserID: userData.ID.Hex(),
+		Email:  userData.Email,
+		Role:   userData.Role,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime,
+		},
 	}
 
 	// Declare the token with the algorithm used for signing, and the claims

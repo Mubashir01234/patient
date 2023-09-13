@@ -59,10 +59,13 @@ func AuthenticateJWT() gin.HandlerFunc {
 }
 
 func setClaim(c *gin.Context, claims *auth.Claims) error {
-	if claims.Username == "" {
-		return errors.New("Unable to set username in claims")
+	if claims.Email == "" && claims.UserID == "" && claims.Role == "" {
+		return errors.New("unable to set claims")
 	}
 
-	c.Set("username", claims.Username)
+	c.Set("user_id", claims.UserID)
+	c.Set("email", claims.Email)
+	c.Set("role", claims.Role)
+
 	return nil
 }

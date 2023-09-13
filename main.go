@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"patient/auth"
-	"patient/cache"
 	"patient/config"
 	"patient/controllers"
 	"patient/middleware"
@@ -22,11 +21,12 @@ func init() {
 }
 
 func main() {
-	cache.InitRedis()
+	// cache.InitRedis()
 
 	//gin.SetMode(gin.ReleaseMode)
 	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
+	r.SetTrustedProxies(nil)
 
 	r.Use(gin.Logger())
 	if gin.Mode() == gin.ReleaseMode {
@@ -41,14 +41,19 @@ func main() {
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/", controllers.Healthcheck)
-		// v1.GET("/books", middleware.APIKeyAuthMiddleware(), controllers.FindBooks)
-		// v1.POST("/books", middleware.APIKeyAuthMiddleware(), middleware.AuthenticateJWT(), controllers.CreateBook)
-		// v1.GET("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.FindBook)
-		// v1.PUT("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.UpdateBook)
-		// v1.DELETE("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.DeleteBook)
-
 		v1.POST("/login", auth.LoginHandler)
-		v1.POST("/register", auth.RegisterHandler)
+
+		patient := v1.Group("/patient")
+		{
+
+			// v1.GET("/books", middleware.APIKeyAuthMiddleware(), controllers.FindBooks)
+			// v1.POST("/books", middleware.APIKeyAuthMiddleware(), middleware.AuthenticateJWT(), controllers.CreateBook)
+			// v1.GET("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.FindBook)
+			// v1.PUT("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.UpdateBook)
+			// v1.DELETE("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.DeleteBook)
+
+			patient.POST("/register", auth.PatientRegisterHandler)
+		}
 	}
 	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	if err := r.Run(":" + config.Cfg.ServerPort); err != nil {
