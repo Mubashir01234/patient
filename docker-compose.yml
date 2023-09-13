@@ -1,0 +1,50 @@
+version: '1.0'
+services:
+  backend:
+    container_name: patient_backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    # environment:
+      # POSTGRES_DB: patient_db
+      # POSTGRES_HOST: database
+      # POSTGRES_USER: docker
+      # POSTGRES_PASSWORD: password
+      # POSTGRES_PORT: 5435
+      # JWT_SECRET_KEY: ObL89O3nOSSEj6tbdHako0cXtPErzBUfq8l8o/3KD9g=INSECURE
+      # API_SECRET_KEY: cJGZ8L1sDcPezjOy1zacPJZxzZxrPObm2Ggs1U0V+fE=INSECURE
+
+  # db:
+  #   image: postgres:14.1-alpine
+  #   restart: always
+  #   container_name: dockerPostgres
+  #   volumes:
+  #     - .dbdata:/var/lib/postgres
+  #   ports:
+  #     - '5435:5435'
+  #   environment:
+  #     - POSTGRES_DB=go_app_dev
+  #     - POSTGRES_USER=docker
+  #     - POSTGRES_PASSWORD=password
+  #   command: -p 5435
+
+  db:
+    image: mongo:latest
+    restart: always
+    container_name: patient_database
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: 'patient_hub'
+      MONGO_INITDB_ROOT_PASSWORD: '0GjTKZn8auAd!6qywzbBaSunKGYtM4T0m8ZGt6I!Lks'
+
+volumes:
+  mongodb_data:
