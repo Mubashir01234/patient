@@ -40,6 +40,7 @@ func main() {
 	{
 		v1.GET("/", controllers.Healthcheck)
 		v1.POST("/login", auth.LoginHandler)
+		v1.POST("/upload", controllers.UploadFile)
 
 		patient := v1.Group("/patient")
 		{

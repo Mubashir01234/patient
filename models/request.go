@@ -6,10 +6,10 @@ type PatientRequest struct {
 }
 
 type UpdatePatientRequest struct {
-	Email       string `json:"email" bson:"email"`
-	Password    string `json:"password" bson:"password"`
-	FullName    string `json:"full_name" bson:"full_name"`
-	DOB         string `json:"dob" bson:"dob"`
-	Phone       string `json:"phone" bson:"phone"`
-	HomeAddress string `json:"home_address" bson:"home_address"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	FullName     string `json:"full_name"`
+	DOB          string `json:"dob"`
+	MobileNumber string `json:"mobile_number"`
+	HomeAddress  string `json:"home_address"`
 }

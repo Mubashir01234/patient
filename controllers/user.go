@@ -15,8 +15,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func Healthcheck(g *gin.Context) {
-	g.JSON(http.StatusOK, "ok")
+func Healthcheck(c *gin.Context) {
+	c.JSON(http.StatusOK, "ok")
 }
 
 func GetPatientByEmail(c *gin.Context) {
@@ -85,8 +85,8 @@ func UpdatePatient(c *gin.Context) {
 	if len(patient.HomeAddress) > 0 {
 		dbPatient.HomeAddress = patient.HomeAddress
 	}
-	if len(patient.Phone) > 0 {
-		dbPatient.Phone = patient.Phone
+	if len(patient.MobileNumber) > 0 {
+		dbPatient.MobileNumber = patient.MobileNumber
 	}
 	if len(patient.Password) > 0 {
 		hashedPassword, err := auth.HashPassword(patient.Password)
@@ -106,7 +106,7 @@ func UpdatePatient(c *gin.Context) {
 				primitive.E{Key: "full_name", Value: dbPatient.FullName},
 				primitive.E{Key: "dob", Value: dbPatient.DOB},
 				primitive.E{Key: "home_address", Value: dbPatient.HomeAddress},
-				primitive.E{Key: "phone", Value: dbPatient.Phone},
+				primitive.E{Key: "phone", Value: dbPatient.MobileNumber},
 				primitive.E{Key: "password", Value: dbPatient.Password},
 				primitive.E{Key: "updated_at", Value: dbPatient.UpdatedAt},
 			},
