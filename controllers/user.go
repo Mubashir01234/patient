@@ -67,7 +67,7 @@ func UpdatePatient(c *gin.Context) {
 		return
 	}
 
-	if len(patient.Email) > 0 {
+	if len(patient.Email) > 0 && dbPatient.Email != patient.Email {
 		err := collection.FindOne(c, bson.D{primitive.E{Key: "email", Value: patient.Email}})
 		if err.Err() != nil && !errors.Is(err.Err(), mongo.ErrNoDocuments) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})

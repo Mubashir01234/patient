@@ -39,11 +39,11 @@ func main() {
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/", controllers.Healthcheck)
-		v1.POST("/login", auth.LoginHandler)
 		v1.POST("/upload", controllers.UploadFile)
 
 		patient := v1.Group("/patient")
 		{
+			patient.POST("/login", auth.LoginHandler)
 			patient.POST("/register", auth.PatientRegisterHandler)
 			patient.GET("", middleware.AuthenticateJWT(), controllers.GetPatientByEmail)
 			patient.PUT("", middleware.AuthenticateJWT(), controllers.UpdatePatient)
