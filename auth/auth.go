@@ -31,15 +31,15 @@ type Claims struct {
 }
 
 func LoginHandler(c *gin.Context) {
-	var incomingUser models.UserRequest
-	var dbUser models.User
-	if err := c.ShouldBindJSON(&incomingUser); err != nil {
+	var incomingPatient models.PatientRequest
+	var dbPatient models.Patient
+	if err := c.ShouldBindJSON(&incomingPatient); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "bad request"})
 		return
 	}
 
-	collection := models.Collection["users"]
-	if err := collection.FindOne(c, bson.D{primitive.E{Key: "email", Value: incomingUser.Email}}).Decode(&dbUser); err != nil {
+	collection := models.Collection["patients"]
+	if err := collection.FindOne(c, bson.D{primitive.E{Key: "email", Value: incomingPatient.Email}}).Decode(&dbPatient); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 		} else {
@@ -48,12 +48,12 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(incomingUser.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(dbPatient.Password), []byte(incomingPatient.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
 		return
 	}
 
-	token, err := GenerateToken(dbUser)
+	token, err := GenerateToken(dbPatient)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error generating token: %v", err)})
 		return
@@ -63,39 +63,39 @@ func LoginHandler(c *gin.Context) {
 }
 
 func PatientRegisterHandler(c *gin.Context) {
-	var user models.UserRequest
-	if err := c.ShouldBindJSON(&user); err != nil {
+	var patient models.PatientRequest
+	if err := c.ShouldBindJSON(&patient); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	hashedPassword, err := HashPassword(user.Password)
+	hashedPassword, err := HashPassword(patient.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not hash password"})
 		return
 	}
 
-	collection := models.Collection["users"]
-	var existingUser models.UserRequest
-	if err = collection.FindOne(c, bson.D{primitive.E{Key: "email", Value: user.Email}}).Decode(&existingUser); err == nil {
+	collection := models.Collection["patients"]
+	var existingUser models.PatientRequest
+	if err = collection.FindOne(c, bson.D{primitive.E{Key: "email", Value: patient.Email}}).Decode(&existingUser); err == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "email already exists"})
 		return
 	}
 
-	var newUser models.User
-	if err := copier.Copy(&newUser, &user); err != nil {
+	var newPatient models.Patient
+	if err := copier.Copy(&newPatient, &patient); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("copier error: %v", err)})
 		return
 	}
 
 	now := time.Now().Local()
-	newUser.Password = hashedPassword
-	newUser.Role = constant.PATIENT_ROLE
-	newUser.CreatedAt = now
-	newUser.UpdatedAt = now
-	_, err = collection.InsertOne(c, newUser)
+	newPatient.Password = hashedPassword
+	newPatient.Role = constant.PATIENT_ROLE
+	newPatient.CreatedAt = now
+	newPatient.UpdatedAt = now
+	_, err = collection.InsertOne(c, newPatient)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("could not save user: %v", err)})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("could not save patient: %v", err)})
 		return
 	}
 
@@ -107,7 +107,7 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-func GenerateToken(userData models.User) (string, error) {
+func GenerateToken(userData models.Patient) (string, error) {
 	expirationTime := time.Now().Local().Add(30 * time.Hour).Unix()
 	claims := &Claims{
 		UserID: userData.ID.Hex(),

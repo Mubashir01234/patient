@@ -43,14 +43,16 @@ func main() {
 
 		patient := v1.Group("/patient")
 		{
+			patient.POST("/register", auth.PatientRegisterHandler)
+			patient.GET("", middleware.AuthenticateJWT(), controllers.GetPatientByEmail)
+			patient.PUT("", middleware.AuthenticateJWT(), controllers.UpdatePatient)
+			patient.DELETE("/:email", middleware.AuthenticateJWT(), controllers.DeleteBook)
+
 			// v1.GET("/books", middleware.APIKeyAuthMiddleware(), controllers.FindBooks)
 			// v1.POST("/books", middleware.APIKeyAuthMiddleware(), middleware.AuthenticateJWT(), controllers.CreateBook)
 			// v1.GET("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.FindBook)
 			// v1.PUT("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.UpdateBook)
 			// v1.DELETE("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.DeleteBook)
-
-			patient.POST("/register", auth.PatientRegisterHandler)
-			patient.GET("", middleware.AuthenticateJWT(), controllers.GetPatientByEmail)
 		}
 	}
 	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
