@@ -1,12 +1,15 @@
 package controllers
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"patient/models"
 	"regexp"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/copier"
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -60,4 +63,31 @@ func UploadFile(c *gin.Context) {
 			"size": fileSize,
 		},
 	})
+}
+
+func PatientFormSubmit(c *gin.Context) {
+	var form models.FormRequest
+	if err := c.ShouldBindJSON(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var newForm models.Form
+	if err := copier.Copy(&newForm, &form); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("copier error: %v", err)})
+		return
+	}
+
+	collection := models.Collection["forms"]
+
+	now := time.Now().Local()
+	newForm.CreatedAt = now
+	newForm.UpdatedAt = now
+	_, err := collection.InsertOne(c, newForm)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("could not save form: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "form submitted successfully"})
 }

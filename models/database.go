@@ -37,10 +37,12 @@ func ConnectDatabase() {
 }
 
 func loadCollection(mongoConn *mongo.Client) map[string]*mongo.Collection {
-	collections := make(map[string]*mongo.Collection, 3)
+	collections := make(map[string]*mongo.Collection, 4)
 	collections["patients"] = colHelper(mongoConn, "patients")
 	collections["patient_form"] = colHelper(mongoConn, "patient_form")
 	collections["files"] = colHelper(mongoConn, "files")
+	collections["forms"] = colHelper(mongoConn, "forms")
+
 	return collections
 }
 

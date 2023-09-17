@@ -38,6 +38,8 @@ type Form struct {
 	WorkInfo     WorkInfo             `json:"work_information" bson:"work_information"`
 	HealthInfo   HealthInfo           `json:"health_information" bson:"health_information"`
 	Consent      Consent              `json:"consent" bson:"consent"`
+	CreatedAt    time.Time            `json:"created_at" bson:"created_at"`
+	UpdatedAt    time.Time            `json:"updated_at" bson:"updated_at"`
 }
 
 type NewPatientForm struct {

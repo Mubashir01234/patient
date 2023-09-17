@@ -55,6 +55,10 @@ func main() {
 			// v1.PUT("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.UpdateBook)
 			// v1.DELETE("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.DeleteBook)
 		}
+		form := patient.Group("/form")
+		{
+			form.POST("", controllers.PatientFormSubmit)
+		}
 	}
 	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	if err := r.Run(":" + config.Cfg.ServerPort); err != nil {
