@@ -38,6 +38,7 @@ func main() {
 	{
 		v1.GET("/", controllers.Healthcheck)
 		v1.POST("/upload", controllers.UploadFile)
+		v1.GET("/patients", middleware.AuthenticateJWT(), controllers.GetAllPatients)
 
 		patient := v1.Group("/patient")
 		{
@@ -54,6 +55,8 @@ func main() {
 			form.GET("/:form_id", middleware.AuthenticateJWT(), controllers.GetPatientFormByFormId)
 		}
 		patient.GET("/forms/:email", middleware.AuthenticateJWT(), controllers.GetPatientAllFormByPatientId)
+		patient.GET("/forms", middleware.AuthenticateJWT(), controllers.GetAllForms)
+
 	}
 	if err := r.Run(":" + config.Cfg.ServerPort); err != nil {
 		log.Fatal(err)

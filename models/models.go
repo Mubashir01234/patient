@@ -25,11 +25,15 @@ type Patient struct {
 }
 
 type GetPatient struct {
-	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Email     string             `json:"email" bson:"email"`
-	Role      string             `json:"role" bson:"role"`
-	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt time.Time          `json:"updated_at" bson:"updated_at"`
+	ID           primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Email        string             `json:"email" bson:"email"`
+	Role         string             `json:"role" bson:"role"`
+	FullName     string             `json:"full_name" bson:"full_name"`
+	DOB          string             `json:"dob" bson:"dob"`
+	MobileNumber string             `json:"mobile_number" bson:"mobile_number"`
+	HomeAddress  string             `json:"home_address" bson:"home_address"`
+	CreatedAt    time.Time          `json:"created_at" bson:"created_at"`
+	UpdatedAt    time.Time          `json:"updated_at" bson:"updated_at"`
 }
 
 type Form struct {

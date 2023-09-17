@@ -149,7 +149,6 @@ func GetPatientAllFormByPatientId(c *gin.Context) {
 
 	userRole, _ := c.Get(constant.ROLE_CONTEXT)
 	patientEmail, _ := c.Get(constant.EMAIL_CONTEXT)
-	fmt.Println(incomingEmail, patientEmail, userRole, constant.ADMIN_ROLE)
 	if incomingEmail != patientEmail && userRole != constant.ADMIN_ROLE {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "you have no access to get patient data"})
 		return
@@ -206,9 +205,72 @@ func GetPatientAllFormByPatientId(c *gin.Context) {
 
 		result = append(result, content)
 	}
-
 	metadata := computeMetadata(totalRecords, filter.Page, filter.Limit)
+	c.JSON(http.StatusOK, gin.H{
+		"data":     result,
+		"metadata": metadata,
+	})
+}
 
+func GetAllForms(c *gin.Context) {
+	userRole, _ := c.Get(constant.ROLE_CONTEXT)
+	if userRole != constant.ADMIN_ROLE {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "you have no access to get forms"})
+		return
+	}
+
+	filterJson := c.Query("json")
+	filter := models.Filter{
+		Page:  1,
+		Limit: 10,
+	}
+	if len(filterJson) > 0 {
+		if err := json.Unmarshal([]byte(filterJson), &filter); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid filter request passed"})
+			return
+		}
+	}
+
+	if filter.Page < 1 || filter.Limit < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "filter values must be greater than 0"})
+		return
+	}
+
+	countOpts := options.Count()
+	collection := models.Collection["forms"]
+	totalRecords, err := collection.CountDocuments(c, bson.M{}, countOpts)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "unable to get record count: " + err.Error()})
+		return
+	}
+
+	skip := (filter.Page - 1) * filter.Limit
+	opts := options.Find()
+	opts.SetSort(bson.D{primitive.E{Key: "updated_at", Value: -1}})
+	opts.SetLimit(filter.Limit)
+	opts.SetSkip(int64(skip))
+	var result []models.Form
+	cursor, err := collection.Find(c, bson.M{}, opts)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			c.JSON(http.StatusOK, gin.H{"message": "no data found", "data": nil})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error on getting data: " + err.Error()})
+		return
+	}
+
+	for cursor.Next(c) {
+		var content models.Form
+		err := cursor.Decode(&content)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error on getting data: " + err.Error()})
+			return
+		}
+
+		result = append(result, content)
+	}
+	metadata := computeMetadata(totalRecords, filter.Page, filter.Limit)
 	c.JSON(http.StatusOK, gin.H{
 		"data":     result,
 		"metadata": metadata,
