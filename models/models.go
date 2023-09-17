@@ -33,6 +33,7 @@ type GetPatient struct {
 }
 
 type Form struct {
+	PatientId    string               `json:"patient_id" bson:"patient_id"`
 	Patient      NewPatientForm       `json:"patient_detail" bson:"patient_detail"`
 	EContactInfo EmergencyContactInfo `json:"emergency_contact_information " bson:"emergency_contact_information"`
 	WorkInfo     WorkInfo             `json:"work_information" bson:"work_information"`

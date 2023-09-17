@@ -20,7 +20,7 @@ func Healthcheck(c *gin.Context) {
 }
 
 func GetPatientByEmail(c *gin.Context) {
-	incomingEmail := c.Query("email")
+	incomingEmail := c.Param("email")
 	if len(incomingEmail) <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "bad request"})
 		return

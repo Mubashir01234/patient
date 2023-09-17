@@ -24,9 +24,9 @@ import (
 
 // Claims struct to be encoded to JWT
 type Claims struct {
-	UserID string `json:"user_id"`
-	Email  string `json:"email"`
-	Role   string `json:"role"`
+	PatientId string `json:"patient_id"`
+	Email     string `json:"email"`
+	Role      string `json:"role"`
 	jwt.StandardClaims
 }
 
@@ -110,9 +110,9 @@ func HashPassword(password string) (string, error) {
 func GenerateToken(userData models.Patient) (string, error) {
 	expirationTime := time.Now().Local().Add(30 * time.Hour).Unix()
 	claims := &Claims{
-		UserID: userData.ID.Hex(),
-		Email:  userData.Email,
-		Role:   userData.Role,
+		PatientId: userData.ID.Hex(),
+		Email:     userData.Email,
+		Role:      userData.Role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime,
 		},

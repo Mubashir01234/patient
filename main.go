@@ -45,7 +45,7 @@ func main() {
 		{
 			patient.POST("/login", auth.LoginHandler)
 			patient.POST("/register", auth.PatientRegisterHandler)
-			patient.GET("", middleware.AuthenticateJWT(), controllers.GetPatientByEmail)
+			patient.GET("/:email", middleware.AuthenticateJWT(), controllers.GetPatientByEmail)
 			patient.PUT("", middleware.AuthenticateJWT(), controllers.UpdatePatient)
 			patient.DELETE("/:email", middleware.AuthenticateJWT(), controllers.DeleteBook)
 
@@ -55,9 +55,10 @@ func main() {
 			// v1.PUT("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.UpdateBook)
 			// v1.DELETE("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.DeleteBook)
 		}
-		form := patient.Group("/form")
+		form := patient.Group("/form", middleware.AuthenticateJWT())
 		{
 			form.POST("", controllers.PatientFormSubmit)
+			form.GET("/:form_id", controllers.GetPatientFormByFormID)
 		}
 	}
 	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
