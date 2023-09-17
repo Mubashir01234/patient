@@ -34,6 +34,7 @@ type GetPatient struct {
 
 type Form struct {
 	PatientId    string               `json:"patient_id" bson:"patient_id"`
+	PatientEmail string               `json:"patient_email" bson:"patient_email"`
 	Patient      NewPatientForm       `json:"patient_detail" bson:"patient_detail"`
 	EContactInfo EmergencyContactInfo `json:"emergency_contact_information " bson:"emergency_contact_information"`
 	WorkInfo     WorkInfo             `json:"work_information" bson:"work_information"`
@@ -90,4 +91,9 @@ type Consent struct {
 	ConfirmInfo bool   `json:"confirm_info" bson:"confirm_info"`
 	Signature   string `json:"signature" bson:"signature"`
 	Date        string `json:"date" bson:"date"`
+}
+
+type Filter struct {
+	Page  int64 `json:"page"`
+	Limit int64 `json:"limit"`
 }

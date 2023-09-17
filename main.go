@@ -21,8 +21,6 @@ func init() {
 }
 
 func main() {
-	// cache.InitRedis()
-
 	//gin.SetMode(gin.ReleaseMode)
 	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
@@ -49,19 +47,14 @@ func main() {
 			patient.PUT("", middleware.AuthenticateJWT(), controllers.UpdatePatient)
 			patient.DELETE("/:email", middleware.AuthenticateJWT(), controllers.DeleteBook)
 
-			// v1.GET("/books", middleware.APIKeyAuthMiddleware(), controllers.FindBooks)
-			// v1.POST("/books", middleware.APIKeyAuthMiddleware(), middleware.AuthenticateJWT(), controllers.CreateBook)
-			// v1.GET("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.FindBook)
-			// v1.PUT("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.UpdateBook)
-			// v1.DELETE("/books/:id", middleware.APIKeyAuthMiddleware(), controllers.DeleteBook)
 		}
 		form := patient.Group("/form", middleware.AuthenticateJWT())
 		{
-			form.POST("", controllers.PatientFormSubmit)
-			form.GET("/:form_id", controllers.GetPatientFormByFormID)
+			form.POST("", middleware.AuthenticateJWT(), controllers.PatientFormSubmit)
+			form.GET("/:form_id", middleware.AuthenticateJWT(), controllers.GetPatientFormByFormId)
 		}
+		patient.GET("/forms/:email", middleware.AuthenticateJWT(), controllers.GetPatientAllFormByPatientId)
 	}
-	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	if err := r.Run(":" + config.Cfg.ServerPort); err != nil {
 		log.Fatal(err)
 	}
