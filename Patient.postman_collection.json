@@ -1,0 +1,398 @@
+{
+	"info": {
+		"_postman_id": "a34dca70-cd00-4c0e-9754-5787c112da36",
+		"name": "Patient",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17385921"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"mubashir@gmail.com\",\n    \"password\": \"Mub@01234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/patient/register",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patient",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"mubashir@gmail.com\",\n    \"password\": \"Mub@01234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/patient/login",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patient",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get patient by email",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/patient/mubashir@gmail.com",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patient",
+								"mubashir@gmail.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update patient",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"mubashir@gmail.com\",\n    \"password\": \"Mub@01234\",\n    \"full_name\": \"Mubashir Qadeer\",\n    \"dob\": \"2023=01-01\",\n    \"mobile_number\": \"32413421324\",\n    \"home_address\": \"home address\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/patient",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patient"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Patient",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/patient/mubashir@gmail.com",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patient",
+								"mubashir@gmail.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all patients",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/patients?json={\"page\": 1, \"limit\":10}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patients"
+							],
+							"query": [
+								{
+									"key": "json",
+									"value": "{\"page\": 1, \"limit\":10}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Form",
+			"item": [
+				{
+					"name": "Upload file",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/mubashir/Pictures/Screenshots/Screenshot from 2023-09-17 22-40-27.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/file/upload",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"file",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View file",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/mubashir/Pictures/Screenshots/Screenshot from 2023-09-17 22-40-27.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/file/view/6507b871334815a0e92ca96e",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"file",
+								"view",
+								"6507b871334815a0e92ca96e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Form submit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"patient_detail\": {\n      \"patient_full_name\": \"John Doe\",\n      \"dob\": \"1980-01-01\",\n      \"email\": \"johndoe@example.com\",\n      \"mobile_number\": \"+1234567890\",\n      \"home_address\": \"123 Main St\"\n   },\n   \"emergency_contact_information\": {\n      \"emergency_contact\": \"Jane Smith\",\n      \"mobile\": \"+9876543210\",\n      \"relationship_to_you\": \"Spouse\"\n   },\n   \"work_information\": {\n      \"occupation\": \"Software Engineer\"\n   },\n   \"health_information\": {\n      \"health_objective\": \"Maintain overall health\",\n      \"health_practitioners\": true,\n      \"practice_name\": \"Healthy Clinic\",\n      \"medications_list\": [\n         {\n            \"medications\": \"Medication A\",\n            \"doze\": \"1 pill daily\"\n         },\n         {\n            \"medications\": \"Medication B\",\n            \"doze\": \"2 pills twice daily\"\n         }\n      ],\n      \"allergies_list\": [\n         {\n            \"allergies\": \"Pollen\",\n            \"hospitalisations_list\": [\n               {\n                  \"name\": \"Hospital A\",\n                  \"date\": \"2022-03-15\"\n               },\n               {\n                  \"name\": \"Hospital B\",\n                  \"date\": \"2019-07-20\"\n               }\n            ],\n            \"upload_relevant_scans\": \"6506d67e33abf3d5b7c8d007\",\n            \"upload_reports\": \"6506d67e33abf3d5b7c8d007\"\n         }\n      ]\n   },\n   \"consent\": {\n      \"confirm_info\": true,\n      \"signature\": \"John Doe\",\n      \"date\": \"2023-09-17\"\n   }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/patient/form",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patient",
+								"form"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get form by form id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/patient/form/6506d6a733abf3d5b7c8d00d",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patient",
+								"form",
+								"6506d6a733abf3d5b7c8d00d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get patient forms by email",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/patient/forms/mubashir@gmail.com?json={\"page\": 1, \"limit\":10}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patient",
+								"forms",
+								"mubashir@gmail.com"
+							],
+							"query": [
+								{
+									"key": "json",
+									"value": "{\"page\": 1, \"limit\":10}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all forms",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/patient/forms?json={\"page\": 1, \"limit\":10}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"patient",
+								"forms"
+							],
+							"query": [
+								{
+									"key": "json",
+									"value": "{\"page\": 1, \"limit\":10}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
