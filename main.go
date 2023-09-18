@@ -37,7 +37,8 @@ func main() {
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/", controllers.Healthcheck)
-		v1.POST("/upload", controllers.UploadFile)
+		v1.POST("/file/upload", middleware.AuthenticateJWT(), controllers.UploadFile)
+		v1.GET("/file/view/:id", middleware.AuthenticateJWT(), controllers.GetFile)
 		v1.GET("/patients", middleware.AuthenticateJWT(), controllers.GetAllPatients)
 
 		patient := v1.Group("/patient")
@@ -46,7 +47,7 @@ func main() {
 			patient.POST("/register", auth.PatientRegisterHandler)
 			patient.GET("/:email", middleware.AuthenticateJWT(), controllers.GetPatientByEmail)
 			patient.PUT("", middleware.AuthenticateJWT(), controllers.UpdatePatient)
-			patient.DELETE("/:email", middleware.AuthenticateJWT(), controllers.DeleteBook)
+			patient.DELETE("/:email", middleware.AuthenticateJWT(), controllers.DeletePatient)
 
 		}
 		form := patient.Group("/form", middleware.AuthenticateJWT())

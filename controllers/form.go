@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -62,11 +63,63 @@ func UploadFile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"msg": "Image uploaded successfully",
-		"image": gin.H{
+		"msg": "file uploaded successfully",
+		"file": gin.H{
 			"id":   fieldId,
 			"name": fileHeader.Filename,
 			"size": fileSize,
+		},
+	})
+}
+
+func GetFile(c *gin.Context) {
+	id := c.Param("id")
+	if len(id) <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "bad request"})
+		return
+	}
+
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id format"})
+		return
+	}
+
+	var fileMetadata bson.M
+	fileCollection := models.Collection["files"].Database()
+	if err := fileCollection.Collection("files.files").FindOne(c, bson.D{primitive.E{Key: "_id", Value: objID}}).Decode(&fileMetadata); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			c.JSON(http.StatusOK, gin.H{"message": "no data present for this id", "data": nil})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error on getting data: " + err.Error()})
+		return
+	}
+	var fileBuffer bytes.Buffer
+	bucket, err := gridfs.NewBucket(fileCollection, options.GridFSBucket().SetName("files"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	fileStream, err := bucket.OpenDownloadStream(objID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	defer fileStream.Close()
+	_, err = io.Copy(c.Writer, fileStream)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error copying file to response: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"msg": "successfully",
+		"file": gin.H{
+			"data": fileBuffer.Bytes(),
 		},
 	})
 }

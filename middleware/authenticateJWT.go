@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"patient/auth"
 	"patient/config"
@@ -21,7 +20,6 @@ const (
 func AuthenticateJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader(tokenHeaderKey)
-		fmt.Println(header)
 		if header == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authorization header"})
 			c.Abort()
