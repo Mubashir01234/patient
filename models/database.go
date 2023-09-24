@@ -2,8 +2,9 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"patient/config"
+	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,7 +17,8 @@ var (
 
 func ConnectDatabase() {
 	var err error
-	clientOptions := options.Client().ApplyURI(config.Cfg.MongoURL)
+	fmt.Println("----", os.Getenv("MONGO_URL"))
+	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_URL"))
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal("Connection Failed to Database")

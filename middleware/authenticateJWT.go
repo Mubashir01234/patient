@@ -3,8 +3,8 @@ package middleware
 import (
 	"errors"
 	"net/http"
+	"os"
 	"patient/auth"
-	"patient/config"
 	"patient/constant"
 	"strings"
 
@@ -35,7 +35,7 @@ func AuthenticateJWT() gin.HandlerFunc {
 		tokenStr := header[len(authorizationTypeBearer):]
 		claims := &auth.Claims{}
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-			return []byte(config.Cfg.JwtSecret), nil
+			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 
 		if err != nil {

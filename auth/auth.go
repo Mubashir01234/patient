@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"patient/config"
+	"os"
 	"patient/constant"
 	"patient/models"
 	"time"
@@ -118,7 +118,7 @@ func GenerateToken(userData models.Patient) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(config.Cfg.JwtSecret))
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return "", err
 	}

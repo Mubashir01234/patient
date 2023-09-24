@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
 	"patient/auth"
-	"patient/config"
 	"patient/controllers"
 	"patient/middleware"
 	"patient/models"
@@ -12,13 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
 )
-
-func init() {
-	err := config.LoadConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 func main() {
 	gin.SetMode(gin.ReleaseMode)
@@ -59,7 +52,7 @@ func main() {
 		patient.GET("/forms", middleware.AuthenticateJWT(), controllers.GetAllForms)
 
 	}
-	if err := r.Run(":" + config.Cfg.ServerPort); err != nil {
+	if err := r.Run(":" + os.Getenv("SERVER_PORT")); err != nil {
 		log.Fatal(err)
 	}
 }
