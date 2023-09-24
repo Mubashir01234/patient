@@ -5,5 +5,5 @@ COPY go.sum ./
 RUN go mod download
 RUN go install github.com/cosmtrek/air@latest
 COPY . /app
-EXPOSE 8001
+EXPOSE 80
 CMD ["air", "-c", ".air.toml"]
