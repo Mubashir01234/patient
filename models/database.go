@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
@@ -17,7 +16,6 @@ var (
 
 func ConnectDatabase() {
 	var err error
-	fmt.Println("----", os.Getenv("MONGO_URL"))
 	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_URL"))
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
