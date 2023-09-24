@@ -21,8 +21,8 @@ func init() {
 }
 
 func main() {
-	//gin.SetMode(gin.ReleaseMode)
-	gin.SetMode(gin.DebugMode)
+	gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.DebugMode)
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 	r.Use(gin.Logger())
