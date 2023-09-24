@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 80:80
+      - 8080:8080
     volumes:
       - .:/app
     depends_on:
@@ -14,7 +14,7 @@ services:
     environment:
       MONGO_URL: mongodb://mongo:cc2d90c243dfb4256645@easypanel.brizosteo.au:27017
       JWT_SECRET: j7vrCCX+BADZLN5FvI+/4vdCXhYLJKRJ9aNBxFD4iZs
-      SERVER_PORT: 80
+      SERVER_PORT: 8080
 
   db:
     image: mongo:latest
